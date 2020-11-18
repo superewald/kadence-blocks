@@ -463,6 +463,18 @@ class Kadence_Blocks_Frontend {
 		}
 		return $content;
 	}
+
+	/**
+	 * Render Restaurant-Menu Block CSS
+	 *
+	 * @param array $attributes the blocks attribtues.
+	 */
+	public function render_restaurant_menu_css_head( $attr ) {
+		if ( ! wp_style_is( 'kadence-blocks-restaurant-menu', 'enqueued' ) ) {
+			$this->enqueue_style( 'kadence-blocks-restaurant-menu' );
+		}
+	}
+
 	/**
 	 * Render Tabs Block CSS
 	 *
@@ -1019,6 +1031,7 @@ class Kadence_Blocks_Frontend {
 			return;
 		}
 		// Lets register all the block styles.
+		wp_register_style( 'kadence-blocks-restaurant-menu', KADENCE_BLOCKS_URL . 'dist/blocks/restaurant.style.build.css', array(), KADENCE_BLOCKS_VERSION );
 		wp_register_style( 'kadence-blocks-rowlayout', KADENCE_BLOCKS_URL . 'dist/blocks/row.style.build.css', array(), KADENCE_BLOCKS_VERSION );
 		wp_register_style( 'kadence-blocks-accordion', KADENCE_BLOCKS_URL . 'dist/blocks/accordion.style.build.css', array(), KADENCE_BLOCKS_VERSION );
 		wp_register_style( 'kadence-blocks-btn', KADENCE_BLOCKS_URL . 'dist/blocks/btn.style.build.css', array(), KADENCE_BLOCKS_VERSION );
@@ -1390,6 +1403,12 @@ class Kadence_Blocks_Frontend {
 			}
 			foreach ( $blocks as $indexkey => $block ) {
 				if ( ! is_object( $block ) && is_array( $block ) && isset( $block['blockName'] ) ) {
+					if ( 'kadence/restaurantmenu' === $block['blockName'] ) {
+						if ( isset( $block['attrs'] ) && is_array( $block['attrs'] ) ) {
+							$blockattr = $block['attrs'];
+							$this->render_restaurant_menu_css_head( $blockattr );
+						}
+					}
 					if ( 'kadence/rowlayout' === $block['blockName'] ) {
 						if ( isset( $block['attrs'] ) && is_array( $block['attrs'] ) ) {
 							$blockattr = $block['attrs'];
@@ -4054,6 +4073,7 @@ class Kadence_Blocks_Frontend {
 			$this->enqueue_script( 'kadence-blocks-video-bg' );
 		}
 	}
+
 	/**
 	 * Adds Scripts and Google fonts for Tabs block.
 	 *
