@@ -19,14 +19,20 @@ const { InnerBlocks }         = wp.blockEditor
 const save = ( { attributes } ) => {
 
 	const {
-		fullWidth
+		fullWidth,
+		uniqueID,
+		hAlign,
+		cAlign
 	} = attributes
 
 	return (
 		<Fragment>
 			<div className={
 				classnames( {
+					[`kt-restaurent-menu-id-${uniqueID}`]: true,
 					'kt-restaurent-menu': true,
+					[`kt-restaurent-menu-halign-${ hAlign }`]: true,
+					[`kt-restaurent-menu-calign-${ cAlign }`]: true,
 					'full-width': fullWidth,
 					'not-full-width': !fullWidth
 				} )

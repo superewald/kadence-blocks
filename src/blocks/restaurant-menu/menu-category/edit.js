@@ -3,6 +3,14 @@
  */
 
 /**
+ * Internal dependencies
+ */
+import Inspector from './inspector';
+import Controls from './controls';
+import WebfontLoader from '../../../fontloader';
+import KadenceColorOutput from '../../../kadence-color-output';
+
+/**
  * External dependencies
  */
 import classnames from 'classnames';
@@ -26,6 +34,30 @@ class KadenceRestaurantMenuCategory extends Component {
 		super( ...arguments );
 	}
 
+	componentDidMount() {
+
+		const { attributes } = this.props;
+		const { images, uniqueID } = attributes;
+
+		if ( ! uniqueID ) {
+			this.props.setAttributes( {
+				uniqueID: '_' + this.props.clientId.substr( 2, 9 ),
+			} );
+		}
+
+		this.props.setAttributes( {
+			titleFont: [...this.props.attributes.titleFont]
+		} );
+
+		this.props.setAttributes( {
+			gutter: [...this.props.attributes.gutter]
+		} );
+
+		this.props.setAttributes( {
+			columns: [...this.props.attributes.columns]
+		} );
+	}
+
 	render() {
 		const {
 			clientId,
@@ -40,21 +72,90 @@ class KadenceRestaurantMenuCategory extends Component {
 			title,
 			description,
 			currency,
-			price
+			price,
+			columns,
+			uniqueID,
+			gutter,
+			displayTitle,
+			titleFont,
+			titleMinHeight,
+			titleColor
 		} = attributes;
+
+		const gconfig = {
+			google: {
+				families: [ titleFont[ 0 ].family + ( titleFont[ 0 ].variant ? ':' + titleFont[ 0 ].variant : '' ) ],
+			},
+		};
+		const config = ( titleFont[ 0 ].google ? gconfig : '' );
+		const titleTagName = 'h' + titleFont[ 0 ].level;
 
 		return (
 			<Fragment>
-				<div className={ classnames( 'kt-menu-category' ) } >
-					<RichText
-						tagName="h1"
-						className={ classnames( 'kt-menu-category-title' ) }
-						value={ menuTitle }
-						onChange={ menuTitle => setAttributes( { menuTitle } ) }
-						placeholder={ __( 'MENU TITLE' ) }
-					/>
-					<div className={ classnames( 'kt-category-content' ) }>
+
+				{ isSelected && <Inspector {...this.props} /> }
+				{ isSelected && <Controls {...this.props} /> }
+
+				<style>
+					{ `
+						.wp-block[data-type="kadence/restaurantmenucategory"]  .kt-menu-category-id-${uniqueID} .kt-category-content {
+							${ ( gutter && undefined !== gutter[ 0 ] && '' !== gutter[ 0 ] ? 'margin: -' + ( gutter[ 0 ] / 2 ) + 'px;' : '' ) }
+						}
+						.wp-block[data-type="kadence/restaurantmenucategory"]  .kt-menu-category-id-${uniqueID} .gutter {
+							${ ( gutter && undefined !== gutter[ 0 ] && '' !== gutter[ 0 ] ? 'padding: ' + ( gutter[ 0 ] / 2 ) + 'px;' : '' ) }
+						}
+
+						.wp-block[data-type="kadence/restaurantmenucategory"]  .kt-menu-category-id-${uniqueID} .block-list-appender {
+							${ ( gutter && undefined !== gutter[ 0 ] && '' !== gutter[ 0 ] ? 'padding-left:' + ( gutter[ 0 ] / 2 ) + 'px;' : '' ) }
+							${ ( gutter && undefined !== gutter[ 0 ] && '' !== gutter[ 0 ] ? 'padding-bottom:' + ( gutter[ 0 ] / 2 ) + 'px;' : '' ) }
+							${ ( gutter && undefined !== gutter[ 0 ] && '' !== gutter[ 0 ] ? 'margin-top:' + ( -( gutter[ 0 ] / 2 - 8 ) ) + 'px;' : '' ) }
+						}
+					`}
+				</style>
+
+				<div className={ classnames(
+					'kt-menu-category',
+					`kt-menu-category-id-${uniqueID}`
+				) } >
+
+					{ displayTitle && titleFont[ 0 ].google && (
+						<WebfontLoader config={ config }>
+						</WebfontLoader>
+					) }
+					{ displayTitle && (
+						<RichText
+							className="kt-menu-category-title"
+							tagName={ titleTagName }
+							placeholder={ __( 'Menu Title' ) }
+							onChange={ (value) => setAttributes( { menuTitle: value } ) }
+							value={ menuTitle }
+							style={ {
+								fontWeight: titleFont[ 0 ].weight,
+								fontStyle: titleFont[ 0 ].style,
+								color: KadenceColorOutput( titleColor ),
+								fontSize: titleFont[ 0 ].size[ 0 ] + titleFont[ 0 ].sizeType,
+								lineHeight: ( titleFont[ 0 ].lineHeight && titleFont[ 0 ].lineHeight[ 0 ] ? titleFont[ 0 ].lineHeight[ 0 ] + titleFont[ 0 ].lineType : undefined ),
+								letterSpacing: titleFont[ 0 ].letterSpacing + 'px',
+								fontFamily: ( titleFont[ 0 ].family ? titleFont[ 0 ].family : '' ),
+								padding: ( titleFont[ 0 ].padding ? titleFont[ 0 ].padding[ 0 ] + 'px ' + titleFont[ 0 ].padding[ 1 ] + 'px ' + titleFont[ 0 ].padding[ 2 ] + 'px ' + titleFont[ 0 ].padding[ 3 ] + 'px' : '' ),
+								margin: ( titleFont[ 0 ].margin ? titleFont[ 0 ].margin[ 0 ] + 'px ' + titleFont[ 0 ].margin[ 1 ] + 'px ' + titleFont[ 0 ].margin[ 2 ] + 'px ' + titleFont[ 0 ].margin[ 3 ] + 'px' : '' ),
+								minHeight: ( undefined !== titleMinHeight && undefined !== titleMinHeight[ 0 ] ? titleMinHeight[ 0 ] + 'px' : undefined ),
+							} }
+							keepPlaceholderOnFocus
+						/>
+					) }
+
+					<div
+						className={ classnames( 'kt-category-content' ) }
+						data-columns-xxl={ columns[ 0 ] }
+						data-columns-xl={ columns[ 1 ] }
+						data-columns-lg={ columns[ 2 ] }
+						data-columns-md={ columns[ 3 ] }
+						data-columns-sm={ columns[ 4 ] }
+						data-columns-xs={ columns[ 5 ] }
+					>
 						<InnerBlocks
+							allowedBlocks={['kadence/restaurantmenuitem']}
 							template={ [
 								[
 									'kadence/restaurantmenuitem', {
@@ -66,26 +167,23 @@ class KadenceRestaurantMenuCategory extends Component {
 								]
 							] }
 							templateLock={ false }
-							renderAppender={ () => ( null ) }
+							renderAppender={ () =>  null
+
+								// (
+								// 	<IconButton
+								//         icon="insert"
+								//         label={ __('Add New Food Item') }
+								//         onClick={ () => {
+								// 			const innerCount = select("core/editor").getBlocksByClientId(clientId)[0].innerBlocks.length;
+								// 			let block = createBlock("kadence/restaurantmenuitem");
+								// 			dispatch("core/block-editor").insertBlock(block, innerCount, clientId);
+								// 		} }
+								//     />
+								// )
+
+							}
 						/>
 					</div>
-					<div className={ classnames( 'kt-add-more-item-btn-wrap' ) }>
-						<IconButton
-					        icon="insert"
-					        label={ __('Add New Food Item') }
-					        onClick={ () => {
-
-								const block = select( 'core/block-editor' ).getBlock( clientId );
-
-								const newItem = createBlock(
-									'kadence/restaurantmenuitem'
-								);
-
-								const newInnerBlocks = [ ...block.innerBlocks, { ...newItem } ];
-								dispatch( 'core/block-editor' ).replaceInnerBlocks( clientId, newInnerBlocks, false );
-							} }
-					    />
-				    </div>
 				</div>
 			</Fragment>
 		)

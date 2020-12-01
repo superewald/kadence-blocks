@@ -19,47 +19,70 @@ const { RichText } = wp.blockEditor;
 const save = ( { attributes } ) => {
 
 	const {
+		uniqueID,
+
+		displayTitle,
 		title,
-		description,
-		currency,
-		price
+		titleFont,
+
+		displayText,
+		contentText,
+		textFont,
+
+		displayAmount,
+		amount,
+		priceFont
 	} = attributes;
+
+	const hasAmount    = displayAmount && amount != '' ? true : false;
+	const hasContetnt  = displayTitle || displayText ? true : false;
+	const titleTagName = 'h' + titleFont[ 0 ].level;
+	const textTagName = 'h' + textFont[ 0 ].level;
+	const priceTagName = 'h' + priceFont[ 0 ].level;
+
+	if ( !hasContetnt && !displayAmount ) {
+		return ( <Fragment></Fragment> )
+	}
 
 	return (
 		<Fragment>
-			<div
-				className={ classnames( 'kt-category-content-item col-12 col-md-6 col-lg-4' ) }
-			>
-				<div className={ classnames( 'kt-item-content' ) }>
-					<div className={ classnames( 'kt-item-left' ) }>
-						<RichText.Content
-							tagName="h3"
-							className={ classnames( 'kt-item-title' ) }
-							value={ title }
-						/>
+			<div className={ classnames( `kt-category-content-item-id-${uniqueID} kt-category-content-item-wrap gutter` ) }>
+				<div
+					className={ classnames( 'kt-category-content-item' ) }
+				>
+					<div className={ classnames( 'kt-item-content' ) }>
 
-						<RichText.Content
-							tagName="p"
-							className={ classnames( 'kt-item-description' ) }
-							value={ description }
-						/>
-					</div>
+						{ 	hasContetnt &&
+							<div className={ classnames( 'kt-item-left' ) }>
+								{ 	displayTitle &&
+									<RichText.Content
+										tagName={titleTagName}
+										className={ classnames( 'kt-item-title' ) }
+										value={ title }
+									/>
+								}
+								{ 	displayText &&
+									<RichText.Content
+										tagName={ textTagName }
+										className={ classnames( 'kt-item-text' ) }
+										value={ contentText }
+									/>
+								}
+							</div>
+						}
 
-					<div className={ classnames( 'kt-item-right' ) }>
-						<RichText.Content
-							tagName="span"
-							className={ classnames( 'kt-item-currency' ) }
-							value={ currency }
-						/>
+						{ 	hasAmount &&
+							<div className={ classnames( 'kt-item-right kt-item-price' ) }>
 
-						<RichText.Content
-							tagName="div"
-							className={ classnames( 'kt-item-price' ) }
-							value={ price }
-						/>
+								<RichText.Content
+									tagName={ priceTagName }
+									className={ classnames( 'kt-item-amount' ) }
+									value={ amount }
+								/>
+							</div>
+						}
 					</div>
 				</div>
-
 			</div>
 		</Fragment>
 	);
