@@ -175,7 +175,7 @@ class KB_Ajax_Form {
 					);
 				}
 
-				$fields = apply_filters('kadence_blocks_forms_field_data', $form_args, $fields, $form_id, $post_id);
+				$form_args['fields'] = apply_filters('kadence_blocks_form_field_data', $form_args, $form_id, $post_id);
 				$privacy_title = ( get_option( 'wp_page_for_privacy_policy' ) ? get_the_title( get_option( 'wp_page_for_privacy_policy' ) ) : '' );
 				foreach ( $form_args['fields'] as $key => $data ) {
 					// check for required.
